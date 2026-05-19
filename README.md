@@ -109,8 +109,7 @@ If you find this work useful, please kindly cite our paper:
 @inproceedings{
   ouyang2026reasoningbank,
   title={ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory},
-  author={Ouyang, Siru and Yan, Jun and Hsu, I-Hung and Chen, Yanfei and Jiang, Ke and Wang, Zifeng and Han, Rujun and Le, Long T and Daruki, Samira and Tang, Xiangru and Tirumalashetty, Vishy and Lee,
-  George and Rofouei, Mahsan and Lin, Hangfei and Han, Jiawei and Lee, Chen-Yu and Pfister, Tomas},
+  author={Siru Ouyang and Jun Yan and I-Hung Hsu and Yanfei Chen and Ke Jiang and Zifeng Wang and Rujun Han and Long Le and Samira Daruki and Xiangru Tang and Vishy Tirumalashetty and George Lee and Mahsan Rofouei and Hangfei Lin and Jiawei Han and Chen-Yu Lee and Tomas Pfister},
   booktitle={The Fourteenth International Conference on Learning Representations},
   year={2026},
   url={https://openreview.net/forum?id=jL7fwchScm}

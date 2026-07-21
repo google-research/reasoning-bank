@@ -21,6 +21,6 @@ dependencies = [
     "langchain-community>=0.3.26",
     "langchain-openai>=1.1.11",
     "openai>=2.26.0",
-    "pillow>=11.2.1",
+    "pillow>=12.3.0",
     "torch>=2.7.0",
 ]

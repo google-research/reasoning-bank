@@ -157,10 +157,13 @@ def select_memory(n: int,
     # optional: map back to your in-memory store if you have it
     # below assumes your cache ids correspond 1:1 to indices in reasoning_bank
     out = []
+    current_task_id = str(task_id) if task_id is not None else None
     for sid in top_ids:
+        if current_task_id is not None and str(sid) == current_task_id:
+            continue
         # find the corresponding reasoning bank entry, with reasoning_bank["task_id"] == sid
         for i, item in enumerate(reasoning_bank):
-            if item["task_id"] == sid:
+            if str(item["task_id"]) == str(sid):
                 out.append(reasoning_bank[i])
                 break
     return out
@@ -203,9 +206,16 @@ def screening(cur_query: str,
     instruct_vec = embed_query_with_gemini(instruction_query, dimensionality=3072)
     instruct_vec = l2_normalize(instruct_vec, dim=1)
 
-    # Calculate similarity scores for embeddings and current query
+    # Calculate similarity scores for embeddings and current query. Exclude
+    # cached entries from the current task before ranking so they cannot consume
+    # a top-n retrieval slot on reruns or resumed evaluations.
     scores = (instruct_vec @ cache_emb.T).squeeze(0) * 100.0  # (N,)
-    id2score = list(zip(cache_ids, scores.tolist()))
+    current_task_id = str(task_id) if task_id is not None else None
+    id2score = [
+        (sid, score)
+        for sid, score in zip(cache_ids, scores.tolist())
+        if current_task_id is None or str(sid) != current_task_id
+    ]
     id2score.sort(key=lambda x: x[1], reverse=True)
 
     return id2score, [str(i) for i, _ in id2score]

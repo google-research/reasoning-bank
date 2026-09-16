@@ -193,8 +193,12 @@ if __name__ == "__main__":
     parser.add_argument("--output_path", type=str, default=None, required=True,
                         help="Path to the output file.")
     parser.add_argument("--criteria", type=str, default="autoeval", choices=["gt", "autoeval"])
-    parser.add_argument("--model", type=str, default="gemini-2.5-flash",
-                        choices=["gpt-3.5", "gpt-4", "gpt-4o", "gemini-2.5-flash"])
+    parser.add_argument("--model",
+                        type=lambda model: "gpt-3.5-turbo" if model == "gpt-3.5" else model,
+                        default="gemini-2.5-flash",
+                        choices=["gpt-3.5-turbo", "gpt-4", "gpt-4o", "gemini-2.5-flash",
+                                 "gemini-2.5-pro", "claude-3-7-sonnet@20250219"],
+                        help="Induction model; gpt-3.5 is a legacy alias for gpt-3.5-turbo.")
     parser.add_argument("--task", type=str, default="webarena.47")
     parser.add_argument("--memory_mode", type=str, default="reasoningbank")
     args = parser.parse_args()

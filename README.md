@@ -83,6 +83,24 @@ export PYTHONPATH="$(pwd)/third_party:$PYTHONPATH"
 Run directly with ReasoningBank: `bash run.sh`, config `model`, `output_dir`, and
 `website`, and `memory_mode` accordingly.
 
+`pipeline_memory.py --model` supports `gemini-2.5-flash` (default),
+`gemini-2.5-pro`, and `claude-3-7-sonnet@20250219`. The selected model is
+passed to the actor, evaluator, and memory inducer. Unsupported models are
+rejected before any subprocess starts. In particular, `google/gemma-3-12b-it`
+has no evaluator client, so it is not supported even with `--memory_mode no_memory`,
+which still runs evaluation.
+
+Standalone `induce_memory.py` also accepts Pro and Claude, while retaining its
+GPT choices. The legacy `--model gpt-3.5` spelling is normalized to
+`gpt-3.5-turbo` for both client selection and the autoeval result filename
+(`gpt-3.5-turbo_autoeval.json`). This does not add GPT models to the pipeline
+or change provider implementations or sampling settings.
+
+Run the offline CLI contract regressions from the repository root with
+`python -m unittest discover -s tests -p 'test_memory_model_contract.py' -v`.
+These exercise the actual entrypoints with subprocess and external service
+boundaries mocked; they do not validate live model access or benchmark scores.
+
 To run with scaling setting, please refer to
 `pipeline_scaling.py` and `induce_scaling.py`.
 

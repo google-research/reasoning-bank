@@ -94,7 +94,8 @@ if __name__ == "__main__":
     parser.add_argument("--end_index", type=int, default=None)
     parser.add_argument("--output_dir", type=str, default=None)
     parser.add_argument("--model", type=str, default="gemini-2.5-flash",
-                        choices=["gemini-2.5-flash", "claude-3-7-sonnet@20250219", "gemini-2.5-pro", "google/gemma-3-12b-it"])
+                        choices=["gemini-2.5-flash", "claude-3-7-sonnet@20250219", "gemini-2.5-pro"],
+                        help="Model supported by autoeval and induction; autoeval also runs in no_memory mode.")
     parser.add_argument("--prev_id", type=int, default=-1)
     parser.add_argument("--memory_mode", type=str, default="reasoningbank",
                         choices=["no_memory", "reasoningbank", "awm", "synapse"])

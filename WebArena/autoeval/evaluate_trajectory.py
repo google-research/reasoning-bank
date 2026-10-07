@@ -19,6 +19,7 @@ import gzip
 import pickle
 import json
 import argparse
+import sys
 import traceback
 from autoeval.evaluator import Evaluator
 from autoeval.clients import CLIENT_DICT
@@ -83,9 +84,10 @@ def process_sample(
     evaluator = Evaluator(clients, log_save_path=log_save_path + "/trajs")
     try:
         out, _ = evaluator(traj_info, model, eval_version)
-        eval_result = None
-        if out["status"].lower() == "success": eval_result = True
-        else: eval_result = False
+        status = out["status"].strip().lower()
+        if status not in ("success", "failure", "fail"):
+            raise ValueError(f"Invalid evaluation status: {status!r}")
+        eval_result = status == "success"
         return [{
                 "idx": idx,
                 "gt": traj_info["eval"],
@@ -162,6 +164,9 @@ def main():
     )
     output_eval_path = os.path.join(args.result_dir, f"{args.model}_autoeval.json")
     json.dump(eval_info, open(output_eval_path, 'w'))
+    # Keep the diagnostic artifact, but do not report an unknown judgment as
+    # successful evaluation to the pipeline.
+    return 0 if all(isinstance(row["rm"], bool) for row in eval_info) else 1
 
 
 if __name__ == "__main__":
@@ -182,4 +187,4 @@ if __name__ == "__main__":
         print(f"Waring: use vision prompt by default for {args.model}.")
         args.prompt = "vision"
 
-    main()
+    sys.exit(main())

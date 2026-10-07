@@ -128,6 +128,11 @@ def main():
     else:
         raise ValueError(f"Invalid criteria: {args.criteria}.")
 
+    # Provider/parse errors are unknown judgments, not failed trajectories.
+    # Reject them before creating a client or appending to the memory bank.
+    if args.criteria == "autoeval" and (type(reward) not in (bool, int) or reward not in (0, 1)):
+        raise ValueError("Autoevaluation did not return a valid correctness signal")
+
     if reward == 1:
         status = "success"
     else:

@@ -18,6 +18,19 @@ import json
 import argparse
 from subprocess import Popen
 import random
+import sys
+
+
+def run_stage(command, task_id, stage):
+    """Run one pipeline child and return its exit code."""
+    process = Popen(command)
+    exit_code = process.wait()
+    if exit_code != 0:
+        print(
+            f"[ERROR] webarena.{task_id} {stage} failed with exit code {exit_code}",
+            file=sys.stderr,
+        )
+    return exit_code
 
 def main():
     # collect examples
@@ -58,23 +71,26 @@ def main():
         ]
         if args.memory_mode != "no_memory":
             run_cmd += ["--memory_path", f"memories_{args.memory_mode}/{args.website}.txt"]
-        process = Popen(run_cmd)
-        process.wait()
+        exit_code = run_stage(run_cmd, tid, "actor")
+        if exit_code != 0:
+            return exit_code
 
         # step 2: run evaluation
-        process = Popen([
+        eval_cmd = [
             "python", "-m", "autoeval.evaluate_trajectory",
             "--result_dir", f"{args.output_dir}/webarena.{tid}",
             "--model", args.model,
             "--log_dir", f"autoeval/logs_{args.memory_mode}_{args.website}",
-        ])
-        process.wait()
+        ]
+        exit_code = run_stage(eval_cmd, tid, "evaluator")
+        if exit_code != 0:
+            return exit_code
 
         if args.memory_mode == "no_memory":
             continue
 
         # step 3: extract new memory items
-        process = Popen([
+        induce_cmd = [
             "python", "induce_memory.py",
             "--result_dir", args.output_dir,
             "--task", f"webarena.{tid}",
@@ -82,8 +98,12 @@ def main():
             "--memory_mode", args.memory_mode,
             "--model", args.model,
             "--output_path", f"memories_{args.memory_mode}/{args.website}.jsonl"
-        ])
-        process.wait()
+        ]
+        exit_code = run_stage(induce_cmd, tid, "inducer")
+        if exit_code != 0:
+            return exit_code
+
+    return 0
 
 
 if __name__ == "__main__":
@@ -101,4 +121,4 @@ if __name__ == "__main__":
     parser.add_argument("--judge", type=str, default="autoeval")
     args = parser.parse_args()
 
-    main()
+    sys.exit(main())

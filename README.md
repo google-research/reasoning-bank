@@ -86,6 +86,30 @@ Run directly with ReasoningBank: `bash run.sh`, config `model`, `output_dir`, an
 To run with scaling setting, please refer to
 `pipeline_scaling.py` and `induce_scaling.py`.
 
+For an offline snapshot of memory eligibility and run artifacts, run from
+`WebArena/`:
+
+```bash
+python audit_memory.py --task-id 47 \
+  --memory-bank memories_reasoningbank/shopping.jsonl \
+  --embedding-cache memories_reasoningbank/shopping_embeddings.jsonl \
+  --result-dir results/webarena.47 --model gemini-2.5-flash \
+  --output audit-47.json
+```
+
+The versioned manifest hashes source bytes, reports current-task exclusions,
+duplicate/orphan cache IDs and distinct eligible IDs. Use the bank's task ID
+(e.g., `47`); repeat `--exclude-task-id` to add exclusions. Eligibility does not
+establish similarity ranking or which memories a runner actually selected.
+Top-level result files are hashed without following symlinks; skipped entries
+are listed. Output must be outside the result directory and cannot overwrite
+audited inputs. Model metadata is supplied by the caller; cost remains `null`
+with `cost_status: "not_recorded"`. This tool uses only the Python standard
+library, makes no model calls and does not validate benchmark scores.
+
+Run its offline tests from the repository root with
+`python -m unittest discover -s tests -p 'test_memory_audit.py' -v`.
+
 ### 2. SWE-Bench
 We built upon [mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent). First, install it from source by `pip install -e .` under the directory of `./third_party` This will install the dependencies as specified in `pyproject.toml`.
 
